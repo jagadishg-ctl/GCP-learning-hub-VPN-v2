@@ -1,3 +1,29 @@
+# Simple VM instance in Networkingglobal
+resource "google_compute_instance" "networkingglobal_vm" {
+  project      = google_project.networkingglobal.project_id
+  name         = "networkingglobal-vm"
+  machine_type = "e2-micro"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = "ubuntu-os-cloud/ubuntu-2204-lts"
+      size  = 10
+      type  = "pd-standard"
+    }
+  }
+
+  network_interface {
+    network    = google_compute_network.vpc_hub.id
+    subnetwork = google_compute_subnetwork.subnet_vpn.id
+    access_config {}
+  }
+
+  metadata_startup_script = <<-EOF
+    #!/bin/bash
+    echo "Hello from Networkingglobal VM!" > /var/tmp/hello.txt
+  EOF
+}
 provider "google" {
   project = var.project_id
   region  = var.region
